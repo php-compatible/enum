@@ -353,7 +353,7 @@ echo Php8EnumLabel::fromEnum(Status::PendingReview); // "Pending Review"
 
 ## Requirements
 
-- PHP 7.1 or higher
+- PHP 7.2 or higher
 
 ## License
 
