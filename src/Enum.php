@@ -142,7 +142,10 @@ class Enum
         foreach ($ref->getProperties() as $prop) {
             if ($prop->getDeclaringClass()->getName() === $class && !$prop->isStatic()) {
                 $name = $prop->getName();
-                $prop->setAccessible(true);
+                // setAccessible() is only needed for PHP < 8.1
+                if (PHP_VERSION_ID < 80100) {
+                    $prop->setAccessible(true);
+                }
                 $value = $prop->getValue($this);
 
                 if ($value === null) {
@@ -192,7 +195,10 @@ class Enum
         if (!isset($instance->values[$propertyName])) {
             $ref = new \ReflectionClass($instance);
             $prop = $ref->getProperty($propertyName);
-            $prop->setAccessible(true);
+            // setAccessible() is only needed for PHP < 8.1
+            if (PHP_VERSION_ID < 80100) {
+                $prop->setAccessible(true);
+            }
             $value = $prop->getValue($instance);
 
             // If null, need to load all to calculate auto-increment
