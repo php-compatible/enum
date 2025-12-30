@@ -32,6 +32,7 @@
         "cs-fix": "php-cs-fixer fix"
     },
     "bin": [
-        "bin/enumautodoc"
+        "bin/php-compatible-enum-auto-doc",
+        "bin/php-compatible-enum-upgrade-to-php8"
     ]
 }
