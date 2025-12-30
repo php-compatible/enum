@@ -117,4 +117,57 @@ class SuiteIntEnumTest extends TestCase
         $this->assertSame('Hearts', SuiteIntEnum::hearts()->name);
         $this->assertSame('Hearts', SuiteIntEnum::HEARTS()->name);
     }
+
+    public function testFromWithValidValue(): void
+    {
+        $case = SuiteIntEnum::from(0);
+        $this->assertSame('Hearts', $case->name);
+        $this->assertSame(0, $case->value);
+    }
+
+    public function testFromWithExplicitValue(): void
+    {
+        $case = SuiteIntEnum::from(100);
+        $this->assertSame('Joker', $case->name);
+        $this->assertSame(100, $case->value);
+    }
+
+    public function testFromWithInvalidValueThrowsException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        SuiteIntEnum::from(999);
+    }
+
+    public function testFromReturnsSameInstance(): void
+    {
+        $this->assertSame(SuiteIntEnum::Hearts(), SuiteIntEnum::from(0));
+    }
+
+    public function testTryFromWithValidValue(): void
+    {
+        $case = SuiteIntEnum::tryFrom(0);
+        $this->assertNotNull($case);
+        $this->assertSame('Hearts', $case->name);
+    }
+
+    public function testTryFromWithInvalidValueReturnsNull(): void
+    {
+        $case = SuiteIntEnum::tryFrom(999);
+        $this->assertNull($case);
+    }
+
+    public function testTryFromReturnsSameInstance(): void
+    {
+        $this->assertSame(SuiteIntEnum::Hearts(), SuiteIntEnum::tryFrom(0));
+    }
+
+    public function testFromIsTypeSensitive(): void
+    {
+        // Integer 0 should match, string '0' should not
+        $case = SuiteIntEnum::tryFrom(0);
+        $this->assertNotNull($case);
+
+        $case = SuiteIntEnum::tryFrom('0');
+        $this->assertNull($case);
+    }
 }

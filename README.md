@@ -98,6 +98,35 @@ foreach (Suit::cases() as $case) {
 // spades: 3
 ```
 
+### Looking Up by Value
+
+Use `from()` and `tryFrom()` to get an enum case from its backing value (PHP 8 compatible):
+
+```php
+// from() throws an exception if the value doesn't exist
+$case = Suit::from(0);
+echo $case->name;  // "hearts"
+
+// tryFrom() returns null if the value doesn't exist
+$case = Suit::tryFrom(999);
+var_dump($case);  // null
+
+// Type-sensitive: integer 0 won't match string '0'
+$case = Suit::tryFrom('0');
+var_dump($case);  // null
+```
+
+Duplicate backing values are not allowed (matches PHP 8 behavior):
+
+```php
+// This will throw LogicException
+class Invalid extends Enum
+{
+    protected $foo = 1;
+    protected $bar = 1;  // Duplicate value!
+}
+```
+
 ### Human-Readable Labels
 
 Use `EnumLabel` to convert enum names to human-readable labels:
@@ -197,6 +226,8 @@ The tool scans PHP files for classes that use `PhpCompatible\Enum\Enum`, extract
 |--------|---------|-------------|
 | `CaseName()` | `Value` | Get enum case (case-insensitive) |
 | `cases()` | `Value[]` | Get all enum cases |
+| `from($value)` | `Value` | Get case by value (throws if not found) |
+| `tryFrom($value)` | `Value\|null` | Get case by value (null if not found) |
 
 ### `Value`
 

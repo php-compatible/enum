@@ -53,6 +53,13 @@ class Enum
     private $allLoaded = false;
 
     /**
+     * Reverse lookup map from value to property name.
+     *
+     * @var array<int|string, string>
+     */
+    private $valueMap = [];
+
+    /**
      * Get singleton instance of the enum class.
      *
      * @return static
@@ -145,6 +152,15 @@ class Enum
                 }
 
                 $this->values[$name] = Value::from($name, $value);
+
+                // Build reverse lookup - duplicate values not allowed (PHP 8 behavior)
+                if (array_key_exists($value, $this->valueMap)) {
+                    throw new \LogicException(
+                        "Duplicate value {$value} in enum " . static::class .
+                        " (cases: {$this->valueMap[$value]}, {$name})"
+                    );
+                }
+                $this->valueMap[$value] = $name;
             }
         }
 
@@ -200,5 +216,66 @@ class Enum
         $instance = static::getInstance();
         $instance->loadAll();
         return array_values($instance->values);
+    }
+
+    /**
+     * Find case name by value with strict type comparison.
+     *
+     * @param mixed $value
+     * @return string|null
+     */
+    private function findCaseByValue($value): ?string
+    {
+        foreach ($this->values as $name => $case) {
+            if ($case->value === $value) {
+                return $name;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get an enum case from its backing value.
+     *
+     * @param int|string $value The backing value to look up
+     * @return Value
+     * @throws \ValueError If the value does not match any case (PHP 8+)
+     * @throws \InvalidArgumentException If the value does not match any case (PHP 7)
+     */
+    public static function from($value): Value
+    {
+        $instance = static::getInstance();
+        $instance->loadAll();
+
+        $name = $instance->findCaseByValue($value);
+        if ($name === null) {
+            $message = "{$value} is not a valid backing value for enum " . static::class;
+            // Use ValueError in PHP 8+, InvalidArgumentException in PHP 7
+            if (PHP_VERSION_ID >= 80000) {
+                throw new \ValueError($message);
+            }
+            throw new \InvalidArgumentException($message);
+        }
+
+        return $instance->values[$name];
+    }
+
+    /**
+     * Try to get an enum case from its backing value.
+     *
+     * @param int|string $value The backing value to look up
+     * @return Value|null The enum case or null if not found
+     */
+    public static function tryFrom($value): ?Value
+    {
+        $instance = static::getInstance();
+        $instance->loadAll();
+
+        $name = $instance->findCaseByValue($value);
+        if ($name === null) {
+            return null;
+        }
+
+        return $instance->values[$name];
     }
 }

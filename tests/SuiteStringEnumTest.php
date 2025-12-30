@@ -52,4 +52,45 @@ class SuiteStringEnumTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         SuiteStringEnum::Invalid();
     }
+
+    public function testFromWithValidValue(): void
+    {
+        $case = SuiteStringEnum::from('Hearts');
+        $this->assertSame('Hearts', $case->name);
+        $this->assertSame('Hearts', $case->value);
+    }
+
+    public function testFromWithInvalidValueThrowsException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        SuiteStringEnum::from('Invalid');
+    }
+
+    public function testFromReturnsSameInstance(): void
+    {
+        $this->assertSame(SuiteStringEnum::Hearts(), SuiteStringEnum::from('Hearts'));
+    }
+
+    public function testTryFromWithValidValue(): void
+    {
+        $case = SuiteStringEnum::tryFrom('Hearts');
+        $this->assertNotNull($case);
+        $this->assertSame('Hearts', $case->name);
+    }
+
+    public function testTryFromWithInvalidValueReturnsNull(): void
+    {
+        $case = SuiteStringEnum::tryFrom('Invalid');
+        $this->assertNull($case);
+    }
+
+    public function testFromIsTypeSensitive(): void
+    {
+        // String 'Hearts' should match, integer should not
+        $case = SuiteStringEnum::tryFrom('Hearts');
+        $this->assertNotNull($case);
+
+        $case = SuiteStringEnum::tryFrom(0);
+        $this->assertNull($case);
+    }
 }
