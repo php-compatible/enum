@@ -2,9 +2,8 @@
 
 [![CI](https://github.com/php-compatible/enum/actions/workflows/ci.yml/badge.svg)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/php-compatible/enum/branch/main/graph/badge.svg)](https://codecov.io/gh/php-compatible/enum)
-[![Latest Stable Version](https://poser.pugx.org/php-compatible/enum/v/stable)](https://packagist.org/packages/php-compatible/enum)
-[![PHP Version](https://img.shields.io/packagist/php-v/php-compatible/enum)](https://packagist.org/packages/php-compatible/enum)
-[![License](https://img.shields.io/packagist/l/php-compatible/enum)](https://packagist.org/packages/php-compatible/enum)
+[![PHP Version](https://img.shields.io/badge/php-%3E%3D7.1-8892BF)](https://packagist.org/packages/php-compatible/enum)
+[![License](https://img.shields.io/github/license/php-compatible/enum)](https://github.com/php-compatible/enum/blob/main/LICENSE)
 
 Create enums compatible with PHP 7.2+ with ease.
 
