@@ -19,9 +19,9 @@ namespace PhpCompatible\Enum;
  *     case InProgress;
  * }
  *
- * echo Enum8Label::from(Status::PendingReview); // "Pending Review"
+ * echo Php8EnumLabel::from(Status::PendingReview); // "Pending Review"
  */
-class Enum8Label
+class Php8EnumLabel
 {
     /**
      * @var string

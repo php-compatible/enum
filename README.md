@@ -249,13 +249,13 @@ The tool scans PHP files for classes that use `PhpCompatible\Enum\Enum`, extract
 | `toString()` | `string` | Get label as string |
 | `__toString()` | `string` | Auto string conversion |
 
-### `Enum8Label`
+### `Php8EnumLabel`
 
 For PHP 8.1+ native enums:
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `from(UnitEnum $case)` | `Enum8Label` | Create label from PHP 8 enum case |
+| `from(UnitEnum $case)` | `Php8EnumLabel` | Create label from PHP 8 enum case |
 | `toString()` | `string` | Get label as string |
 | `__toString()` | `string` | Auto string conversion |
 
@@ -266,7 +266,7 @@ enum Status {
     case InProgress;
 }
 
-echo Enum8Label::from(Status::PendingReview); // "Pending Review"
+echo Php8EnumLabel::from(Status::PendingReview); // "Pending Review"
 ```
 
 ## Requirements
