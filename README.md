@@ -1,6 +1,6 @@
-# enum
+# Enum
 
-Create PHP 8-style enums compatible with PHP 7.2+.
+Create enums compatible with PHP 7.2+ with ease.
 
 ## Installation
 
@@ -156,6 +156,29 @@ class Suit extends Enum
 }
 ```
 
+### Auto-generating Annotations
+
+Use the `enumautodoc` CLI tool to automatically generate `@method` annotations:
+
+```bash
+# Scan src/ directory (default)
+vendor/bin/enumautodoc
+
+# Scan a specific directory
+vendor/bin/enumautodoc app/Enums
+
+# Preview changes without modifying files
+vendor/bin/enumautodoc --dry-run
+
+# Case style options for method names
+vendor/bin/enumautodoc                      # camelCase (default): hearts()
+vendor/bin/enumautodoc --pascal-case        # PascalCase: Hearts()
+vendor/bin/enumautodoc --snake-case         # snake_case: hearts()
+vendor/bin/enumautodoc --screaming-snake-case  # SCREAMING_SNAKE_CASE: HEARTS()
+```
+
+The tool scans PHP files for classes that use `PhpCompatible\Enum\Enum`, extracts protected properties, and updates the class docblock with appropriate `@method` annotations. Files are listed as they are updated.
+
 ## How It Works
 
 - Enum cases are defined as `protected` instance properties
@@ -192,7 +215,7 @@ class Suit extends Enum
 
 ## Requirements
 
-- PHP 7.2 or higher
+- PHP 7.1 or higher
 
 ## License
 

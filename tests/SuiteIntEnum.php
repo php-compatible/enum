@@ -6,6 +6,7 @@ use PhpCompatible\Enum\Enum;
 use PhpCompatible\Enum\Value;
 
 /**
+ * Tests Int style enums
  * @method static Value Hearts()
  * @method static Value Diamonds()
  * @method static Value Clubs()

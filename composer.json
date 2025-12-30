@@ -4,11 +4,12 @@
     "type": "library",
     "license": "MIT",
     "require": {
-        "php": ">=7.2"
+        "php": ">=7.1",
+        "symfony/console": "^5.4"
     },
     "config": {
         "platform": {
-            "php": "7.2.0"
+            "php": "7.2.5"
         }
     },
     "autoload": {
@@ -29,5 +30,8 @@
         "test": "phpunit",
         "cs-check": "php-cs-fixer fix --dry-run --diff",
         "cs-fix": "php-cs-fixer fix"
-    }
+    },
+    "bin": [
+        "bin/enumautodoc"
+    ]
 }

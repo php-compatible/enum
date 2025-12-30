@@ -8,6 +8,8 @@ use PhpCompatible\Enum\EnumLabel;
 use PhpCompatible\Enum\Value;
 
 /**
+ * Tests the different types of labels
+ *
  * @method static Value A_VALUE()
  * @method static Value a_value()
  * @method static Value AValue()
