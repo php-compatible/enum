@@ -142,10 +142,12 @@ class Enum
         foreach ($ref->getProperties() as $prop) {
             if ($prop->getDeclaringClass()->getName() === $class && !$prop->isStatic()) {
                 $name = $prop->getName();
+                // @codeCoverageIgnoreStart
                 // setAccessible() is only needed for PHP < 8.1
                 if (PHP_VERSION_ID < 80100) {
                     $prop->setAccessible(true);
                 }
+                // @codeCoverageIgnoreEnd
                 $value = $prop->getValue($this);
 
                 if ($value === null) {
@@ -195,10 +197,12 @@ class Enum
         if (!isset($instance->values[$propertyName])) {
             $ref = new \ReflectionClass($instance);
             $prop = $ref->getProperty($propertyName);
+            // @codeCoverageIgnoreStart
             // setAccessible() is only needed for PHP < 8.1
             if (PHP_VERSION_ID < 80100) {
                 $prop->setAccessible(true);
             }
+            // @codeCoverageIgnoreEnd
             $value = $prop->getValue($instance);
 
             // If null, need to load all to calculate auto-increment
@@ -256,11 +260,13 @@ class Enum
         $name = $instance->findCaseByValue($value);
         if ($name === null) {
             $message = "{$value} is not a valid backing value for enum " . static::class;
+            // @codeCoverageIgnoreStart
             // Use ValueError in PHP 8+, InvalidArgumentException in PHP 7
             if (PHP_VERSION_ID >= 80000) {
                 throw new \ValueError($message);
             }
             throw new \InvalidArgumentException($message);
+            // @codeCoverageIgnoreEnd
         }
 
         return $instance->values[$name];
