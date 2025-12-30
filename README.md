@@ -2,8 +2,15 @@
 
 [![CI](https://github.com/php-compatible/enum/actions/workflows/ci.yml/badge.svg)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/php-compatible/enum/branch/main/graph/badge.svg)](https://codecov.io/gh/php-compatible/enum)
-[![PHP Version](https://img.shields.io/badge/php-%3E%3D7.1-8892BF)](https://packagist.org/packages/php-compatible/enum)
 [![License](https://img.shields.io/github/license/php-compatible/enum)](https://github.com/php-compatible/enum/blob/main/LICENSE)
+
+[![PHP 7.2](https://img.shields.io/badge/PHP-7.2-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
+[![PHP 7.3](https://img.shields.io/badge/PHP-7.3-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
+[![PHP 7.4](https://img.shields.io/badge/PHP-7.4-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
+[![PHP 8.0](https://img.shields.io/badge/PHP-8.0-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
+[![PHP 8.1](https://img.shields.io/badge/PHP-8.1-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
+[![PHP 8.2](https://img.shields.io/badge/PHP-8.2-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
+[![PHP 8.3](https://img.shields.io/badge/PHP-8.3-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
 
 Create enums compatible with PHP 7.2+ with ease.
 
