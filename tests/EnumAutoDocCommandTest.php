@@ -28,7 +28,7 @@ class EnumAutoDocCommandTest extends TestCase
     {
         $this->application = new Application();
         $this->application->add(new EnumAutoDocCommand());
-        $command = $this->application->find('enumautodoc');
+        $command = $this->application->find('php-compatible-enum-auto-doc');
         $this->commandTester = new CommandTester($command);
 
         // Create temp directory for test files

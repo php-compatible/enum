@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class EnumAutoDocCommand extends Command
 {
-    protected static $defaultName = 'enumautodoc';
+    protected static $defaultName = 'php-compatible-enum-auto-doc';
 
     /**
      * @var array<string, callable>

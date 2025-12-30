@@ -28,7 +28,7 @@ if (!$autoloaderFound) {
 use PhpCompatible\Enum\Console\EnumAutoDocCommand;
 use Symfony\Component\Console\Application;
 
-$application = new Application('enumautodoc', '1.0.0');
+$application = new Application('php-compatible-enum-auto-doc', '1.0.0');
 $application->add(new EnumAutoDocCommand());
-$application->setDefaultCommand('enumautodoc', true);
+$application->setDefaultCommand('php-compatible-enum-auto-doc', true);
 $application->run();
