@@ -175,4 +175,11 @@ class SuiteIntEnumTest extends TestCase
         $case = SuiteIntEnum::tryFrom('0');
         $this->assertNull($case);
     }
+
+    public function testDuplicateValuesThrowException(): void
+    {
+        $this->expectException(\LogicException::class);
+        $this->expectExceptionMessage('Duplicate value');
+        DuplicateValueEnum::cases();
+    }
 }

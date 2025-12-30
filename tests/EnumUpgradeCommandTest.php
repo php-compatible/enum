@@ -416,6 +416,168 @@ class LabelFormatter
         $this->assertStringNotContainsString('EnumLabel::from(', $content);
     }
 
+    public function testEnumWithAliasImportIsIgnored(): void
+    {
+        // Alias imports are detected by usesOurEnumNamespace but the class pattern
+        // requires extending 'Enum' directly, so aliases are not converted
+        $originalContent = '<?php
+namespace App\Enums;
+
+use PhpCompatible\Enum\Enum as BaseEnum;
+
+class Status extends BaseEnum
+{
+    protected $draft;
+}
+';
+        $this->createTestFile('Status.php', $originalContent);
+
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        // Alias use is detected but class pattern doesn't match
+        $this->assertStringContainsString('Enum definitions converted: 0', $this->commandTester->getDisplay());
+    }
+
+    public function testEnumWithFullyQualifiedClassName(): void
+    {
+        $this->createTestFile('Status.php', '<?php
+namespace App\Enums;
+
+class Status extends \PhpCompatible\Enum\Enum
+{
+    protected $draft;
+}
+');
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        $this->assertStringContainsString('Enum definitions converted: 1', $this->commandTester->getDisplay());
+    }
+
+    public function testEnumInOurNamespace(): void
+    {
+        $this->createTestFile('Status.php', '<?php
+namespace PhpCompatible\Enum;
+
+class Status extends Enum
+{
+    protected $draft;
+}
+');
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        $this->assertStringContainsString('Enum definitions converted: 1', $this->commandTester->getDisplay());
+    }
+
+    public function testEnumWithNoPropertiesIsIgnored(): void
+    {
+        $originalContent = '<?php
+namespace App\Enums;
+
+use PhpCompatible\Enum\Enum;
+
+class EmptyEnum extends Enum
+{
+}
+';
+        $this->createTestFile('EmptyEnum.php', $originalContent);
+
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        $this->assertStringContainsString('Enum definitions converted: 0', $this->commandTester->getDisplay());
+
+        // Verify file was not modified
+        $actualContent = file_get_contents($this->tempDir . '/EmptyEnum.php');
+        $this->assertEquals($originalContent, $actualContent);
+    }
+
+    public function testDryRunShowsUsageUpdates(): void
+    {
+        $this->createTestFile('Status.php', '<?php
+namespace App\Enums;
+
+use PhpCompatible\Enum\Enum;
+
+class Status extends Enum
+{
+    protected $draft;
+}
+');
+        $this->createTestFile('UsageFile.php', '<?php
+namespace App\Services;
+
+use App\Enums\Status;
+
+class Service
+{
+    public function check()
+    {
+        return Status::draft();
+    }
+}
+');
+
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+            '--dry-run' => true,
+        ]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        $this->assertStringContainsString('Would update usages:', $this->commandTester->getDisplay());
+    }
+
+    public function testEnumWithSnakeCaseProperty(): void
+    {
+        $this->createTestFile('Status.php', '<?php
+namespace App\Enums;
+
+use PhpCompatible\Enum\Enum;
+
+class Status extends Enum
+{
+    protected $pending_review = 1;
+    protected $in_progress = 2;
+}
+');
+        $this->createTestFile('UsageFile.php', '<?php
+namespace App\Services;
+
+use App\Enums\Status;
+
+class Service
+{
+    public function check()
+    {
+        return Status::pending_review();
+    }
+}
+');
+
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+
+        $content = file_get_contents($this->tempDir . '/Status.php');
+        $this->assertStringContainsString("case pending_review = 1;", $content);
+
+        $usageContent = file_get_contents($this->tempDir . '/UsageFile.php');
+        $this->assertStringContainsString('Status::pending_review', $usageContent);
+        $this->assertStringNotContainsString('Status::pending_review()', $usageContent);
+    }
+
     private function createTestFile(string $filename, string $content): void
     {
         $dir = dirname($this->tempDir . '/' . $filename);

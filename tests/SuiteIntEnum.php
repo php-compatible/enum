@@ -21,3 +21,12 @@ class SuiteIntEnum extends Enum
     protected $Spades;      // 3 (auto)
     protected $Joker = 100; // explicit
 }
+
+/**
+ * Enum with duplicate values for testing
+ */
+class DuplicateValueEnum extends Enum
+{
+    protected $first = 1;
+    protected $second = 1; // Duplicate!
+}

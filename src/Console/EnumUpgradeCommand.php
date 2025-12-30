@@ -181,7 +181,7 @@ class EnumUpgradeCommand extends Command
         $newContent = $this->convertToPhp8Enum($content, $className, $cases, $isStringBacked, $hasExplicitValues);
 
         if ($newContent === $content) {
-            return false;
+            return false; // @codeCoverageIgnore
         }
 
         if (!$dryRun) {

@@ -96,4 +96,19 @@ class EnumLabelTest extends TestCase
         $this->expectOutputString('A Big Value');
         echo EnumLabel::from(LabelTestEnum::ABigValue());
     }
+
+    public function testSnakeCaseValueName(): void
+    {
+        // Explicitly test with a Value that has underscore in name
+        $value = Value::from('SCREAMING_SNAKE', 1);
+        $label = EnumLabel::from($value);
+        $this->assertSame('Screaming Snake', $label->toString());
+    }
+
+    public function testLowerSnakeCaseValueName(): void
+    {
+        $value = Value::from('lower_snake_case', 2);
+        $label = EnumLabel::from($value);
+        $this->assertSame('Lower Snake Case', $label->toString());
+    }
 }

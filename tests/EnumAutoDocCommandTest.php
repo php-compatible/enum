@@ -285,6 +285,143 @@ class SubEnum extends Enum
         $this->assertStringContainsString('2 file(s) updated', $this->commandTester->getDisplay());
     }
 
+    public function testVerboseOutputShowsDetails(): void
+    {
+        $this->createTestEnumFile('TestEnum.php', '<?php
+use PhpCompatible\\Enum\\Enum;
+
+class TestEnum extends Enum
+{
+    protected $Hearts;
+}
+');
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ], ['verbosity' => \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERBOSE]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        $this->assertStringContainsString('Processing:', $this->commandTester->getDisplay());
+        $this->assertStringContainsString('Class:', $this->commandTester->getDisplay());
+        $this->assertStringContainsString('Properties:', $this->commandTester->getDisplay());
+    }
+
+    public function testVerboseNoChangesNeeded(): void
+    {
+        $this->createTestEnumFile('TestEnum.php', '<?php
+use PhpCompatible\\Enum\\Enum;
+
+/**
+ * @method static Value hearts()
+ */
+class TestEnum extends Enum
+{
+    protected $hearts;
+}
+');
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ], ['verbosity' => \Symfony\Component\Console\Output\OutputInterface::VERBOSITY_VERBOSE]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        $this->assertStringContainsString('No changes needed', $this->commandTester->getDisplay());
+    }
+
+    public function testEnumWithAliasImport(): void
+    {
+        $this->createTestEnumFile('TestEnum.php', '<?php
+use PhpCompatible\\Enum\\Enum as BaseEnum;
+
+class TestEnum extends BaseEnum
+{
+    protected $Hearts;
+}
+');
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        $this->assertStringContainsString('1 file(s) updated', $this->commandTester->getDisplay());
+    }
+
+    public function testEnumWithFullyQualifiedClassName(): void
+    {
+        $this->createTestEnumFile('TestEnum.php', '<?php
+
+class TestEnum extends \\PhpCompatible\\Enum\\Enum
+{
+    protected $Hearts;
+}
+');
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        $this->assertStringContainsString('1 file(s) updated', $this->commandTester->getDisplay());
+    }
+
+    public function testEnumInOurNamespace(): void
+    {
+        $this->createTestEnumFile('TestEnum.php', '<?php
+namespace PhpCompatible\\Enum;
+
+class TestEnum extends Enum
+{
+    protected $Hearts;
+}
+');
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        $this->assertStringContainsString('1 file(s) updated', $this->commandTester->getDisplay());
+    }
+
+    public function testFileWithOurNamespaceButNotExtendingEnum(): void
+    {
+        $originalContent = '<?php
+use PhpCompatible\\Enum\\Enum;
+
+class NotAnEnum
+{
+    protected $value;
+}
+';
+        $this->createTestEnumFile('NotAnEnum.php', $originalContent);
+
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        $this->assertStringContainsString('0 file(s) updated', $this->commandTester->getDisplay());
+
+        // Verify file was not modified
+        $actualContent = file_get_contents($this->tempDir . '/NotAnEnum.php');
+        $this->assertEquals($originalContent, $actualContent);
+    }
+
+    public function testEnumWithNoPropertiesIsIgnoredEvenWithNamespace(): void
+    {
+        $originalContent = '<?php
+use PhpCompatible\\Enum\\Enum;
+
+class EmptyEnum extends Enum
+{
+}
+';
+        $this->createTestEnumFile('EmptyEnum.php', $originalContent);
+
+        $this->commandTester->execute([
+            'path' => $this->tempDir,
+        ]);
+
+        $this->assertEquals(0, $this->commandTester->getStatusCode());
+        $this->assertStringContainsString('0 file(s) updated', $this->commandTester->getDisplay());
+    }
+
     private function createTestEnumFile(string $filename, string $content): void
     {
         $dir = dirname($this->tempDir . '/' . $filename);

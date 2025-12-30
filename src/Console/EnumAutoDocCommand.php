@@ -247,7 +247,7 @@ class EnumAutoDocCommand extends Command
             return $before . $newDoc . $classDecl . substr($content, strlen($matches[0]));
         }
 
-        return $content;
+        return $content; // @codeCoverageIgnore
     }
 
     /**
