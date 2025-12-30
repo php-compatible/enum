@@ -10,7 +10,9 @@ composer require php-compatible/enum
 
 ## Usage
 
-### Integer Enum (Auto-increment)
+### Basic Enum (Auto-increment)
+
+Define enum cases as protected properties. Uninitialized properties auto-increment from 0:
 
 ```php
 <?php
@@ -19,112 +21,174 @@ use PhpCompatible\Enum\Enum;
 use PhpCompatible\Enum\Value;
 
 /**
- * @method static Value Hearts()
- * @method static Value Diamonds()
- * @method static Value Clubs()
- * @method static Value Spades()
+ * @method static Value hearts()
+ * @method static Value diamonds()
+ * @method static Value clubs()
+ * @method static Value spades()
  */
 class Suit extends Enum
 {
-    const Hearts = Value::AUTO;   // 0
-    const Diamonds = Value::AUTO; // 1
-    const Clubs = Value::AUTO;    // 2
-    const Spades = Value::AUTO;   // 3
+    protected $hearts;   // 0
+    protected $diamonds; // 1
+    protected $clubs;    // 2
+    protected $spades;   // 3
 }
 
-// Access enum cases
-$hearts = Suit::Hearts();
-
-echo $hearts->name;  // "Hearts"
-echo $hearts->value; // 0
+echo Suit::hearts()->name;  // "hearts"
+echo Suit::hearts()->value; // 0
 ```
 
-### Integer Enum (Explicit Values)
+### Mixed Values
+
+Combine auto-increment with explicit values:
 
 ```php
-<?php
-
-use PhpCompatible\Enum\Enum;
-use PhpCompatible\Enum\Value;
-
-/**
- * @method static Value Draft()
- * @method static Value Published()
- * @method static Value Archived()
- */
 class Status extends Enum
 {
-    const Draft = 10;
-    const Published = 20;
-    const Archived = 30;
+    protected $draft;        // 0
+    protected $pending;      // 1
+    protected $published = 10;
+    protected $archived;     // 11
 }
-
-echo Status::Published()->value; // 20
 ```
 
 ### String Enum
 
 ```php
-<?php
-
-use PhpCompatible\Enum\Enum;
-use PhpCompatible\Enum\Value;
-
-/**
- * @method static Value Red()
- * @method static Value Green()
- * @method static Value Blue()
- */
 class Color extends Enum
 {
-    const Red = 'red';
-    const Green = 'green';
-    const Blue = 'blue';
+    protected $red = 'red';
+    protected $green = 'green';
+    protected $blue = 'blue';
 }
 
-echo Color::Red()->name;  // "Red"
-echo Color::Red()->value; // "red"
+echo Color::red()->name;  // "red"
+echo Color::red()->value; // "red"
 ```
 
-### Mixed Values (Auto-increment with Explicit)
+### Case-Insensitive Access
+
+Access enum cases using any naming convention:
 
 ```php
-<?php
-
-use PhpCompatible\Enum\Enum;
-use PhpCompatible\Enum\Value;
-
-/**
- * @method static Value Hearts()
- * @method static Value Diamonds()
- * @method static Value Clubs()
- * @method static Value Spades()
- * @method static Value Joker()
- */
-class Card extends Enum
+class Status extends Enum
 {
-    const Hearts = Value::AUTO;   // 0
-    const Diamonds = Value::AUTO; // 1
-    const Clubs = Value::AUTO;    // 2
-    const Spades = Value::AUTO;   // 3
-    const Joker = 100;            // 100
+    protected $pendingReview;
 }
+
+// All of these return the same Value instance:
+Status::pendingReview();   // camelCase
+Status::PendingReview();   // PascalCase
+Status::PENDING_REVIEW();  // SCREAMING_SNAKE_CASE
+Status::pending_review();  // snake_case
+
+// The name property preserves the original definition:
+Status::PENDING_REVIEW()->name; // "pendingReview"
+```
+
+### Getting All Cases
+
+```php
+foreach (Suit::cases() as $case) {
+    echo $case->name . ': ' . $case->value . PHP_EOL;
+}
+// hearts: 0
+// diamonds: 1
+// clubs: 2
+// spades: 3
+```
+
+### Human-Readable Labels
+
+Use `EnumLabel` to convert enum names to human-readable labels:
+
+```php
+use PhpCompatible\Enum\EnumLabel;
+
+class TaskStatus extends Enum
+{
+    protected $pendingReview;
+    protected $inProgress;
+    protected $onHold;
+}
+
+echo EnumLabel::from(TaskStatus::pendingReview()); // "Pending Review"
+echo EnumLabel::from(TaskStatus::inProgress());    // "In Progress"
+echo EnumLabel::from(TaskStatus::onHold());        // "On Hold"
+```
+
+`EnumLabel` handles various naming conventions:
+
+| Input | Output |
+|-------|--------|
+| `camelCase` | `Camel Case` |
+| `PascalCase` | `Pascal Case` |
+| `snake_case` | `Snake Case` |
+| `SCREAMING_SNAKE` | `Screaming Snake` |
+| `ABCValue` | `ABC Value` |
+
+Labels auto-convert to strings:
+
+```php
+$label = EnumLabel::from(TaskStatus::pendingReview());
+
+echo "Status: $label";    // "Status: Pending Review"
+echo $label->toString();  // "Pending Review"
 ```
 
 ## IDE Support
 
-Add PHPDoc `@method` annotations to your enum class for IDE autocompletion:
+Add PHPDoc `@method` annotations for autocompletion:
 
 ```php
 /**
- * @method static Value Hearts()
- * @method static Value Diamonds()
+ * @method static Value hearts()
+ * @method static Value diamonds()
+ * @method static Value clubs()
+ * @method static Value spades()
  */
 class Suit extends Enum
 {
-    // ...
+    protected $hearts;
+    protected $diamonds;
+    protected $clubs;
+    protected $spades;
 }
 ```
+
+## How It Works
+
+- Enum cases are defined as `protected` instance properties
+- Properties are immutable from outside the class
+- `__callStatic` enables static-style access: `Suit::hearts()`
+- A singleton instance is created internally for reflection
+- Values are lazily loaded and cached on first access
+- `null` (uninitialized) values auto-increment from 0
+- Case-insensitive matching allows flexible access styles
+
+## API Reference
+
+### `Enum`
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `CaseName()` | `Value` | Get enum case (case-insensitive) |
+| `cases()` | `Value[]` | Get all enum cases |
+
+### `Value`
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `$name` | `string` | The enum case name (original definition) |
+| `$value` | `int\|string\|null` | The enum case value |
+
+### `EnumLabel`
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `from(Value $value)` | `EnumLabel` | Create label from enum value |
+| `toString()` | `string` | Get label as string |
+| `__toString()` | `string` | Auto string conversion |
 
 ## Requirements
 

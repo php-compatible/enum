@@ -14,10 +14,9 @@ use PhpCompatible\Enum\Value;
  */
 class SuiteIntEnum extends Enum
 {
-    const Hearts = Value::AUTO; // test auto incrementing
-    const Diamonds = Value::AUTO;
-    const Clubs = Value::AUTO;
-    const Spades = Value::AUTO;
-
-    const Joker = 100; // test when user also specifies a const value
+    protected $Hearts;      // 0 (auto)
+    protected $Diamonds;    // 1 (auto)
+    protected $Clubs;       // 2 (auto)
+    protected $Spades;      // 3 (auto)
+    protected $Joker = 100; // explicit
 }

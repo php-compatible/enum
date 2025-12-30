@@ -13,8 +13,8 @@ use PhpCompatible\Enum\Value;
  */
 class SuiteStringEnum extends Enum
 {
-    const Hearts = 'Hearts';
-    const Diamonds = 'Diamonds';
-    const Clubs = 'Clubs';
-    const Spades = 'Spades';
+    protected $Hearts = 'Hearts';
+    protected $Diamonds = 'Diamonds';
+    protected $Clubs = 'Clubs';
+    protected $Spades = 'Spades';
 }

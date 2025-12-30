@@ -3,54 +3,202 @@
 namespace PhpCompatible\Enum;
 
 /**
- * @method static Value __callStatic(string $name, array $arguments)
+ * Base class for creating PHP 8-style enums compatible with PHP 7.2+.
+ *
+ * Extend this class and define protected properties to create an enum:
+ *
+ * ```php
+ * class Status extends Enum
+ * {
+ *     protected $active;      // 0 (auto)
+ *     protected $inactive;    // 1 (auto)
+ *     protected $archived = 10;
+ *     protected $deleted;     // 11 (auto)
+ * }
+ *
+ * // All of these work:
+ * echo Status::active()->value;   // 0
+ * echo Status::Active()->value;   // 0
+ * echo Status::ACTIVE()->value;   // 0
+ * ```
  */
 class Enum
 {
-    private static $constantsCache = [];
-    private static $valuesCache = [];
+    /**
+     * Singleton instances per enum class.
+     *
+     * @var array<string, static>
+     */
+    private static $instances = [];
 
-    protected static function getConstants(): array
+    /**
+     * Cached Value instances on this enum instance.
+     *
+     * @var array<string, Value>
+     */
+    private $values = [];
+
+    /**
+     * Mapping of normalized names to actual property names.
+     *
+     * @var array<string, string>
+     */
+    private $nameMap = [];
+
+    /**
+     * Whether all values have been loaded (for auto-increment).
+     *
+     * @var bool
+     */
+    private $allLoaded = false;
+
+    /**
+     * Get singleton instance of the enum class.
+     *
+     * @return static
+     */
+    private static function getInstance(): self
     {
         $class = static::class;
-        if (!isset(self::$constantsCache[$class])) {
-            $constants = [];
-            $ref = new \ReflectionClass($class);
-            foreach ($ref->getReflectionConstants() as $constant) {
-                if ($constant->getDeclaringClass()->getName() === $class) {
-                    $constants[$constant->getName()] = $constant->getValue();
-                }
-            }
-            self::$constantsCache[$class] = $constants;
+        if (!isset(self::$instances[$class])) {
+            self::$instances[$class] = new static();
         }
-        return self::$constantsCache[$class];
+        return self::$instances[$class];
     }
 
-    protected static function getValues(): array
+    /**
+     * Normalize a name for case-insensitive matching.
+     *
+     * Converts camelCase, PascalCase, snake_case, SCREAMING_SNAKE_CASE
+     * all to the same normalized form (lowercase, no separators).
+     *
+     * @param string $name
+     * @return string
+     */
+    private static function normalize(string $name): string
     {
+        // Remove underscores and convert to lowercase
+        return strtolower(str_replace('_', '', $name));
+    }
+
+    /**
+     * Build the name mapping for case-insensitive lookups.
+     *
+     * @return void
+     */
+    private function buildNameMap(): void
+    {
+        if (!empty($this->nameMap)) {
+            return;
+        }
+
         $class = static::class;
-        if (!isset(self::$valuesCache[$class])) {
-            $values = [];
-            $autoIncrement = 0;
-            foreach (static::getConstants() as $name => $value) {
-                if ($value === Value::AUTO) {
+        $ref = new \ReflectionClass($this);
+
+        foreach ($ref->getProperties() as $prop) {
+            if ($prop->getDeclaringClass()->getName() === $class && !$prop->isStatic()) {
+                $name = $prop->getName();
+                $normalized = self::normalize($name);
+                $this->nameMap[$normalized] = $name;
+            }
+        }
+    }
+
+    /**
+     * Find the actual property name from any case variation.
+     *
+     * @param string $name
+     * @return string|null
+     */
+    private function findPropertyName(string $name): ?string
+    {
+        $this->buildNameMap();
+        $normalized = self::normalize($name);
+        return $this->nameMap[$normalized] ?? null;
+    }
+
+    /**
+     * Load all enum cases with auto-increment support.
+     *
+     * @return void
+     */
+    private function loadAll(): void
+    {
+        if ($this->allLoaded) {
+            return;
+        }
+
+        $class = static::class;
+        $ref = new \ReflectionClass($this);
+        $autoIncrement = 0;
+
+        foreach ($ref->getProperties() as $prop) {
+            if ($prop->getDeclaringClass()->getName() === $class && !$prop->isStatic()) {
+                $name = $prop->getName();
+                $prop->setAccessible(true);
+                $value = $prop->getValue($this);
+
+                if ($value === null) {
                     $value = $autoIncrement++;
                 } elseif (is_int($value)) {
                     $autoIncrement = $value + 1;
                 }
-                $values[$name] = Value::from($name, $value);
+
+                $this->values[$name] = Value::from($name, $value);
             }
-            self::$valuesCache[$class] = $values;
         }
-        return self::$valuesCache[$class];
+
+        $this->allLoaded = true;
     }
 
+    /**
+     * Magic method to access enum cases as static methods.
+     *
+     * Supports case-insensitive access:
+     * - MyEnum::camelCase()
+     * - MyEnum::CamelCase()
+     * - MyEnum::CAMEL_CASE()
+     *
+     * @param string $name The enum case name (any case style)
+     * @param array $arguments Unused
+     * @return Value
+     * @throws \InvalidArgumentException If case does not exist
+     */
     public static function __callStatic(string $name, array $arguments): Value
     {
-        $values = static::getValues();
-        if (!isset($values[$name])) {
+        $instance = static::getInstance();
+        $propertyName = $instance->findPropertyName($name);
+
+        if ($propertyName === null) {
             throw new \InvalidArgumentException("Enum case {$name} does not exist in " . static::class);
         }
-        return $values[$name];
+
+        if (!isset($instance->values[$propertyName])) {
+            $ref = new \ReflectionClass($instance);
+            $prop = $ref->getProperty($propertyName);
+            $prop->setAccessible(true);
+            $value = $prop->getValue($instance);
+
+            // If null, need to load all to calculate auto-increment
+            if ($value === null) {
+                $instance->loadAll();
+            } else {
+                $instance->values[$propertyName] = Value::from($propertyName, $value);
+            }
+        }
+
+        return $instance->values[$propertyName];
+    }
+
+    /**
+     * Get all enum cases.
+     *
+     * @return Value[]
+     */
+    public static function cases(): array
+    {
+        $instance = static::getInstance();
+        $instance->loadAll();
+        return array_values($instance->values);
     }
 }

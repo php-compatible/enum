@@ -57,4 +57,64 @@ class SuiteIntEnumTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         SuiteIntEnum::Invalid();
     }
+
+    public function testCasesReturnsAllValues(): void
+    {
+        $cases = SuiteIntEnum::cases();
+        $this->assertCount(5, $cases);
+    }
+
+    public function testCasesReturnsValueInstances(): void
+    {
+        $cases = SuiteIntEnum::cases();
+        foreach ($cases as $case) {
+            $this->assertInstanceOf(Value::class, $case);
+        }
+    }
+
+    public function testCasesContainsAllEnumValues(): void
+    {
+        $cases = SuiteIntEnum::cases();
+        $names = array_map(function ($case) {
+            return $case->name;
+        }, $cases);
+
+        $this->assertContains('Hearts', $names);
+        $this->assertContains('Diamonds', $names);
+        $this->assertContains('Clubs', $names);
+        $this->assertContains('Spades', $names);
+        $this->assertContains('Joker', $names);
+    }
+
+    public function testCaseInsensitivePascalCase(): void
+    {
+        $this->assertSame(0, SuiteIntEnum::Hearts()->value);
+    }
+
+    public function testCaseInsensitiveLowerCase(): void
+    {
+        $this->assertSame(0, SuiteIntEnum::hearts()->value);
+    }
+
+    public function testCaseInsensitiveUpperCase(): void
+    {
+        $this->assertSame(0, SuiteIntEnum::HEARTS()->value);
+    }
+
+    public function testCaseInsensitiveSnakeCase(): void
+    {
+        $this->assertSame(0, SuiteIntEnum::HEAR_TS()->value);
+    }
+
+    public function testCaseInsensitiveSameInstance(): void
+    {
+        $this->assertSame(SuiteIntEnum::Hearts(), SuiteIntEnum::hearts());
+        $this->assertSame(SuiteIntEnum::Hearts(), SuiteIntEnum::HEARTS());
+    }
+
+    public function testValueNamePreservesOriginalCase(): void
+    {
+        $this->assertSame('Hearts', SuiteIntEnum::hearts()->name);
+        $this->assertSame('Hearts', SuiteIntEnum::HEARTS()->name);
+    }
 }
