@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/php-compatible/enum/actions/workflows/ci.yml/badge.svg)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/php-compatible/enum/branch/main/graph/badge.svg)](https://codecov.io/gh/php-compatible/enum)
-[![License](https://img.shields.io/github/license/php-compatible/enum)](https://github.com/php-compatible/enum/blob/main/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/php-compatible/enum/blob/main/LICENSE)
 
 [![PHP 7.2](https://img.shields.io/badge/PHP-7.2-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
 [![PHP 7.3](https://img.shields.io/badge/PHP-7.3-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
@@ -40,6 +40,10 @@ This library provides a PHP 8-compatible enum API that works on PHP 7.2 and abov
 ```bash
 composer require php-compatible/enum
 ```
+
+## Documentation
+
+Full documentation available at [phpcompatible.dev/docs/enum](https://phpcompatible.dev/docs/enum)
 
 ## Usage
 
