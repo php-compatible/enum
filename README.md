@@ -43,7 +43,7 @@ composer require php-compatible/enum
 
 ## Documentation
 
-Full documentation available at [phpcompatible.dev/docs/enum](https://phpcompatible.dev/docs/enum)
+Full documentation available at [phpcompatible.dev/docs/category/enum](https://phpcompatible.dev/docs/category/enum)
 
 ## Usage
 
