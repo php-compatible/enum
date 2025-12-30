@@ -11,6 +11,8 @@
 [![PHP 8.1](https://img.shields.io/badge/PHP-8.1-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
 [![PHP 8.2](https://img.shields.io/badge/PHP-8.2-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
 [![PHP 8.3](https://img.shields.io/badge/PHP-8.3-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
+[![PHP 8.4](https://img.shields.io/badge/PHP-8.4-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
+[![PHP 8.5](https://img.shields.io/badge/PHP-8.5-8892BF)](https://github.com/php-compatible/enum/actions/workflows/ci.yml)
 
 Create enums compatible with PHP 7.2+ with ease.
 
