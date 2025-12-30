@@ -62,7 +62,12 @@ class SuiteStringEnumTest extends TestCase
 
     public function testFromWithInvalidValueThrowsException(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        // PHP 8+ throws ValueError, PHP 7 throws InvalidArgumentException
+        if (PHP_VERSION_ID >= 80000) {
+            $this->expectException(\ValueError::class);
+        } else {
+            $this->expectException(\InvalidArgumentException::class);
+        }
         SuiteStringEnum::from('Invalid');
     }
 
