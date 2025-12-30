@@ -16,12 +16,12 @@ class EnumLabel
     /**
      * @var string
      */
-    private $label;
+    protected $label;
 
     /**
      * @param string $label
      */
-    private function __construct(string $label)
+    protected function __construct(string $label)
     {
         $this->label = $label;
     }
@@ -34,7 +34,7 @@ class EnumLabel
      */
     public static function from(Value $value): self
     {
-        return new self(self::humanize($value->name));
+        return new self(static::humanize($value->name));
     }
 
     /**
@@ -43,7 +43,7 @@ class EnumLabel
      * @param string $name
      * @return string
      */
-    private static function humanize(string $name): string
+    protected static function humanize(string $name): string
     {
         // Handle snake_case: split by underscore and title case
         if (strpos($name, '_') !== false) {
