@@ -192,26 +192,80 @@ class Suit extends Enum
 
 ### Auto-generating Annotations
 
-Use the `enumautodoc` CLI tool to automatically generate `@method` annotations:
+Use the `php-compatible-enum-auto-doc` CLI tool to automatically generate `@method` annotations:
 
 ```bash
 # Scan src/ directory (default)
-vendor/bin/enumautodoc
+vendor/bin/php-compatible-enum-auto-doc
 
 # Scan a specific directory
-vendor/bin/enumautodoc app/Enums
+vendor/bin/php-compatible-enum-auto-doc app/Enums
 
 # Preview changes without modifying files
-vendor/bin/enumautodoc --dry-run
+vendor/bin/php-compatible-enum-auto-doc --dry-run
 
 # Case style options for method names
-vendor/bin/enumautodoc                      # camelCase (default): hearts()
-vendor/bin/enumautodoc --pascal-case        # PascalCase: Hearts()
-vendor/bin/enumautodoc --snake-case         # snake_case: hearts()
-vendor/bin/enumautodoc --screaming-snake-case  # SCREAMING_SNAKE_CASE: HEARTS()
+vendor/bin/php-compatible-enum-auto-doc                      # camelCase (default): hearts()
+vendor/bin/php-compatible-enum-auto-doc --pascal-case        # PascalCase: Hearts()
+vendor/bin/php-compatible-enum-auto-doc --snake-case         # snake_case: hearts()
+vendor/bin/php-compatible-enum-auto-doc --screaming-snake-case  # SCREAMING_SNAKE_CASE: HEARTS()
 ```
 
 The tool scans PHP files for classes that use `PhpCompatible\Enum\Enum`, extracts protected properties, and updates the class docblock with appropriate `@method` annotations. Files are listed as they are updated.
+
+### Upgrading to PHP 8 Native Enums
+
+When you're ready to migrate to PHP 8.1+ native enums, use the `php-compatible-enum-upgrade-to-php8` CLI tool:
+
+```bash
+# Scan src/ directory (default)
+vendor/bin/php-compatible-enum-upgrade-to-php8
+
+# Scan a specific directory
+vendor/bin/php-compatible-enum-upgrade-to-php8 app/Enums
+
+# Preview changes without modifying files
+vendor/bin/php-compatible-enum-upgrade-to-php8 --dry-run
+```
+
+The tool will:
+
+1. **Convert enum class definitions** - Transform `class Status extends Enum` to `enum Status`
+2. **Update case declarations** - Convert `protected $draft;` to `case draft;`
+3. **Handle backed enums** - Preserve integer or string backing values
+4. **Update usages** - Replace `Status::draft()` with `Status::draft` (removes parentheses)
+5. **Swap EnumLabel** - Replace `EnumLabel::from()` with `Php8EnumLabel::from()`
+
+**Before:**
+
+```php
+use PhpCompatible\Enum\Enum;
+use PhpCompatible\Enum\EnumLabel;
+
+class Status extends Enum
+{
+    protected $draft;
+    protected $published = 10;
+}
+
+$status = Status::draft();
+echo EnumLabel::from($status);
+```
+
+**After:**
+
+```php
+use PhpCompatible\Enum\Php8EnumLabel;
+
+enum Status: int
+{
+    case draft = 0;
+    case published = 10;
+}
+
+$status = Status::draft;
+echo Php8EnumLabel::fromEnum($status);
+```
 
 ## How It Works
 
@@ -251,11 +305,11 @@ The tool scans PHP files for classes that use `PhpCompatible\Enum\Enum`, extract
 
 ### `Php8EnumLabel`
 
-For PHP 8.1+ native enums:
+For PHP 8.1+ native enums (extends `EnumLabel`):
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `from(UnitEnum $case)` | `Php8EnumLabel` | Create label from PHP 8 enum case |
+| `fromEnum(UnitEnum $case)` | `Php8EnumLabel` | Create label from PHP 8 enum case |
 | `toString()` | `string` | Get label as string |
 | `__toString()` | `string` | Auto string conversion |
 
@@ -266,7 +320,7 @@ enum Status {
     case InProgress;
 }
 
-echo Php8EnumLabel::from(Status::PendingReview); // "Pending Review"
+echo Php8EnumLabel::fromEnum(Status::PendingReview); // "Pending Review"
 ```
 
 ## Requirements
