@@ -96,7 +96,7 @@ class EnumAutoDocCommand extends Command
 
         if (!is_dir($path)) {
             $output->writeln("<error>Path not found: {$path}</error>");
-            return Command::FAILURE;
+            return 1;
         }
 
         $output->writeln("<info>Scanning {$path} for Enum classes...</info>");
@@ -118,7 +118,7 @@ class EnumAutoDocCommand extends Command
         $output->writeln("");
         $output->writeln("<info>Done. {$updated} file(s) " . ($dryRun ? "would be " : "") . "updated.</info>");
 
-        return Command::SUCCESS;
+        return 0;
     }
 
     /**

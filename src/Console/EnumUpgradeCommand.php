@@ -45,7 +45,7 @@ class EnumUpgradeCommand extends Command
 
         if (!is_dir($path)) {
             $output->writeln("<error>Path not found: {$path}</error>");
-            return Command::FAILURE;
+            return 1;
         }
 
         $output->writeln("<info>Scanning {$path} for PhpCompatible Enum classes...</info>");
@@ -77,7 +77,7 @@ class EnumUpgradeCommand extends Command
         $output->writeln("  Enum definitions " . ($dryRun ? "to be " : "") . "converted: {$enumFiles}");
         $output->writeln("  Files with usage updates " . ($dryRun ? "to be " : "") . "modified: {$usageFiles}");
 
-        return Command::SUCCESS;
+        return 0;
     }
 
     /**
